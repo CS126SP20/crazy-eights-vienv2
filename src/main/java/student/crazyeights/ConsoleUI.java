@@ -86,10 +86,11 @@ public class ConsoleUI {
 
     public Card.Suit getDeclaredSuit() {
         Card.Suit[] suits = Card.Suit.values();
+        String changedSuit = getUserInput();
         String suitStr;
         for (Card.Suit suit : suits) {
             suitStr = suit.toString();
-            if (getUserInput().equalsIgnoreCase(suitStr)) {
+            if (changedSuit.equalsIgnoreCase(suitStr)) {
                 return suit;
             }
         }

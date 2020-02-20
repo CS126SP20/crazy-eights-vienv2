@@ -80,29 +80,13 @@ public class PlayerAI implements PlayerStrategy {
     @Override
     public boolean shouldDrawCard(Card topPileCard, Card.Suit changedSuit) {
 
+        filterPlayableCards();
+
         if (shouldPlayEightCard()) {
             return false;
         }
 
-        if (changedSuit == null) {
-            // If the top card is not an eight.
-            for (Card playerCard : availableCards) {
-                if (!CardCollection.cardIsEight(playerCard)
-                        && (playerCard.getRank() == topPileCard.getRank()
-                        || playerCard.getSuit() == topPileCard.getSuit())) {
-                    return false;
-                }
-            }
-        } else {
-            // If the top card is an eight and the suit has been changed.
-            for (Card playerCard : availableCards) {
-                if (!CardCollection.cardIsEight(playerCard)
-                        && (playerCard.getSuit() == changedSuit)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return playableCardsNotEight.isEmpty();
 
     }
 
@@ -117,13 +101,14 @@ public class PlayerAI implements PlayerStrategy {
     @Override
     public Card playCard() {
 
-        filterPlayableCards();
+        Card cardChosen = suggestCard();
 
-        ui.simulateInput(suggestCard().toString());
+        ui.simulateInput(cardChosen.toString());
 
-        availableCards.remove(suggestCard());
+        availableCards.remove(cardChosen);
 
-        return suggestCard();
+        return cardChosen;
+
     }
 
     /**
@@ -179,15 +164,22 @@ public class PlayerAI implements PlayerStrategy {
 
         calculateCardsLeft();
 
-        if (noOfEightCards == 0 || cardsLeftInDrawPile > 2) {
-            return false;
-        }
-        for (int noOfCardsInOpponentHand : cardsLeftInOpponentHands.keySet()) {
-            if (noOfCardsInOpponentHand == 1) {
+        if (noOfEightCards > 0) {
+
+            if (availableCards.size() == 2 || cardsLeftInDrawPile < 2) {
                 return true;
             }
+
+            for (int noOfCardsInOpponentHand : cardsLeftInOpponentHands.keySet()) {
+                if (noOfCardsInOpponentHand == 1) {
+                    return true;
+                }
+            }
+
         }
-        return (availableCards.size() == 2);
+
+        return false;
+
     }
 
     private void sortCardsByCommonality() {
@@ -202,7 +194,7 @@ public class PlayerAI implements PlayerStrategy {
                 if (c1.getRank() == c2.getRank()
                         && c1.getSuit() == c2.getSuit()) {
                     commonality += 2;
-                } else if (canPlayCard(c1, c2)) {
+                } else if (canPlayCard(c1, c2, null)) {
                     commonality += 1;
                 }
             }
@@ -293,13 +285,19 @@ public class PlayerAI implements PlayerStrategy {
     private void filterPlayableCards() {
 
         playableCardsNotEight = new ArrayList<>();
+        noOfEightCards = 0;
 
         Card topPileCard = null;
+        Card.Suit changedSuit = null;
         PlayerTurn lastTurn;
+
         for (int i = gameHistory.size() - 1; i >= 0; i--) {
             lastTurn = gameHistory.get(i);
             topPileCard = lastTurn.getPlayedCard();
             if (topPileCard != null) {
+                if (CardCollection.cardIsEight(topPileCard)) {
+                    changedSuit = lastTurn.getDeclaredSuit();
+                }
                 break;
             }
         }
@@ -308,17 +306,21 @@ public class PlayerAI implements PlayerStrategy {
             if (CardCollection.cardIsEight(avcard)) {
                 noOfEightCards += 1;
             }
-            if (canPlayCard(avcard, topPileCard)) {
+            if (canPlayCard(avcard, topPileCard, changedSuit)) {
                 playableCardsNotEight.add(avcard);
             }
         }
 
     }
 
-    private boolean canPlayCard(Card cardToPlay, Card topPileCard) {
+    private boolean canPlayCard(Card cardToPlay, Card topPileCard, Card.Suit changedSuit) {
+        if (changedSuit != null) {
+            return !CardCollection.cardIsEight(cardToPlay) &&
+                    (cardToPlay.getSuit() == changedSuit);
+        }
         return !CardCollection.cardIsEight(cardToPlay) &&
-                (cardToPlay.getRank() == topPileCard.getRank()
-                        || cardToPlay.getSuit() == topPileCard.getSuit());
+                (cardToPlay.getSuit() == topPileCard.getSuit()
+                        || cardToPlay.getRank() == topPileCard.getRank());
     }
 
     private void calculateCardsLeft() {
