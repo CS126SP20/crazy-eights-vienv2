@@ -88,7 +88,8 @@ public class PlayerAI implements PlayerStrategy {
             // If the top card is not an eight.
             for (Card playerCard : availableCards) {
                 if (!CardCollection.cardIsEight(playerCard)
-                        && canPlayCard(playerCard, topPileCard)) {
+                        && (playerCard.getRank() == topPileCard.getRank()
+                        || playerCard.getSuit() == topPileCard.getSuit())) {
                     return false;
                 }
             }
@@ -102,6 +103,7 @@ public class PlayerAI implements PlayerStrategy {
             }
         }
         return true;
+
     }
 
     /**
@@ -116,6 +118,7 @@ public class PlayerAI implements PlayerStrategy {
     public Card playCard() {
 
         filterPlayableCards();
+
         ui.simulateInput(suggestCard().toString());
 
         availableCards.remove(suggestCard());
@@ -149,7 +152,7 @@ public class PlayerAI implements PlayerStrategy {
 
             if (opponentDeclaredSuit != null && cardsLeftInOpponentHands.get(opponentId) == 1
                     && (opponentDeclaredSuit == mostCommonSuit.get(0))) {
-                suitToDeclare =  mostCommonSuit.get(1);
+                suitToDeclare = mostCommonSuit.get(1);
                 ui.simulateInput(suitToDeclare.toString());
                 return suitToDeclare;
             }
@@ -293,12 +296,14 @@ public class PlayerAI implements PlayerStrategy {
 
         Card topPileCard = null;
         PlayerTurn lastTurn;
-        for (int i = gameHistory.size() - 1; i > 0; i--) {
+        for (int i = gameHistory.size() - 1; i >= 0; i--) {
             lastTurn = gameHistory.get(i);
-            if (lastTurn.getPlayedCard() != null) {
-                topPileCard = lastTurn.getPlayedCard();
+            topPileCard = lastTurn.getPlayedCard();
+            if (topPileCard != null) {
+                break;
             }
         }
+
         for (Card avcard : availableCards) {
             if (CardCollection.cardIsEight(avcard)) {
                 noOfEightCards += 1;
@@ -311,9 +316,9 @@ public class PlayerAI implements PlayerStrategy {
     }
 
     private boolean canPlayCard(Card cardToPlay, Card topPileCard) {
-        return CardCollection.cardIsEight(cardToPlay) &&
+        return !CardCollection.cardIsEight(cardToPlay) &&
                 (cardToPlay.getRank() == topPileCard.getRank()
-                || cardToPlay.getSuit() == topPileCard.getSuit());
+                        || cardToPlay.getSuit() == topPileCard.getSuit());
     }
 
     private void calculateCardsLeft() {
