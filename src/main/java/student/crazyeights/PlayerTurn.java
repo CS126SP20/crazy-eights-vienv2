@@ -37,6 +37,40 @@ public class PlayerTurn {
 
     // Convenience methods; you might or might not need these.
 
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
+    }
+
+    public boolean isDrewACard() {
+        return drewACard;
+    }
+
+    public void setDrewACard(boolean drewACard) {
+        this.drewACard = drewACard;
+    }
+
+    public Card getPlayedCard() {
+        return playedCard;
+    }
+
+    public void setPlayedCard(Card playedCard) {
+        this.playedCard = playedCard;
+    }
+
+    public Card.Suit getDeclaredSuit() {
+        return declaredSuit;
+    }
+
+
+    public void setDeclaredSuit(Card.Suit declaredSuit) {
+        this.declaredSuit = declaredSuit;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

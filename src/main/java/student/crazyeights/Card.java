@@ -109,4 +109,8 @@ public class Card {
     public int hashCode() {
         return Objects.hash(suit, rank);
     }
+
+    public String toString() {
+        return rank + " of " + suit;
+    }
 }
