@@ -150,13 +150,15 @@ public class PlayerAI implements PlayerStrategy {
             if (opponentDeclaredSuit != null && cardsLeftInOpponentHands.get(opponentId) == 1
                     && (opponentDeclaredSuit == mostCommonSuit.get(0))) {
                 suitToDeclare =  mostCommonSuit.get(1);
+                ui.simulateInput(suitToDeclare.toString());
+                return suitToDeclare;
             }
 
         }
 
         suitToDeclare = mostCommonSuit.get(0);
         ui.simulateInput(suitToDeclare.toString());
-        return mostCommonSuit.get(0);
+        return suitToDeclare;
 
     }
 
@@ -288,8 +290,15 @@ public class PlayerAI implements PlayerStrategy {
     private void filterPlayableCards() {
 
         playableCardsNotEight = new ArrayList<>();
-        PlayerTurn lastTurn = gameHistory.get(gameHistory.size() - 1);
-        Card topPileCard = lastTurn.getPlayedCard();
+
+        Card topPileCard = null;
+        PlayerTurn lastTurn;
+        for (int i = gameHistory.size() - 1; i > 0; i--) {
+            lastTurn = gameHistory.get(i);
+            if (lastTurn.getPlayedCard() != null) {
+                topPileCard = lastTurn.getPlayedCard();
+            }
+        }
         for (Card avcard : availableCards) {
             if (CardCollection.cardIsEight(avcard)) {
                 noOfEightCards += 1;
@@ -302,8 +311,9 @@ public class PlayerAI implements PlayerStrategy {
     }
 
     private boolean canPlayCard(Card cardToPlay, Card topPileCard) {
-        return cardToPlay.getRank() == topPileCard.getRank()
-                || cardToPlay.getSuit() == topPileCard.getSuit();
+        return CardCollection.cardIsEight(cardToPlay) &&
+                (cardToPlay.getRank() == topPileCard.getRank()
+                || cardToPlay.getSuit() == topPileCard.getSuit());
     }
 
     private void calculateCardsLeft() {

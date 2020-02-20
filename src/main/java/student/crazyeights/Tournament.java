@@ -56,6 +56,9 @@ public class Tournament {
             tournamentScore = game.updateScore(tournamentScore);
             // Announce the tournament score after every game.
             ui.announceScoreOrWinner(tournamentScore, TOURNAMENT_SCORE_ID);
+            for (Player p : players) {
+                p.reset();
+            }
         } while (!tournamentIsOver());
 
         // Announce the winner at the end of the tournament.

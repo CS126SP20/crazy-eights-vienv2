@@ -37,8 +37,9 @@ public class ConsoleUI {
 
     public static final String NEW_SUIT_DECLARED = " is the new suit.";
 
+    public static final String DRAW_CARD_REPORT = " drew a card.";
     public static final String GAME_SCORE_ANNOUNCEMENT = "Scores for the game: ";
-    public static final String WINNER_ANNOUNCEMENT_ONE = " is the winner!";
+    public static final String WINNER_ANNOUNCEMENT_ONE = "is the winner!";
     public static final String WINNER_ANNOUNCEMENT_MULTIPLE = "are the winners!";
 
     public static final String END_GAME_ANNOUNCEMENT = "Thank you for playing the game!";
@@ -206,17 +207,23 @@ public class ConsoleUI {
         Card.Suit newSuit = playerTurn.getDeclaredSuit();
         Card cardPlayed = playerTurn.getPlayedCard();
         String cardPlayedDeclaration;
-        if (cardPlayed.getRank() == Card.Rank.ACE) {
-            cardPlayedDeclaration = CARD_PLAYED_ACE;
-        } else {
-            cardPlayedDeclaration = CARD_PLAYED_NOT_ACE;
-        }
 
-        out.println(playerName + cardPlayedDeclaration + cardPlayed.toString());
-        if (newSuit != null) {
-            // Capitalize the first letter
-            String newSuitStr = capitalizeFirstLetter(newSuit);
-            out.println(newSuitStr + NEW_SUIT_DECLARED);
+        if (playerTurn.drewACard) {
+            out.println(playerName + DRAW_CARD_REPORT);
+        } else {
+            if (cardPlayed.getRank() == Card.Rank.ACE) {
+                cardPlayedDeclaration = CARD_PLAYED_ACE;
+            } else {
+                cardPlayedDeclaration = CARD_PLAYED_NOT_ACE;
+            }
+
+            out.println(playerName + cardPlayedDeclaration + cardPlayed.toString());
+
+            if (newSuit != null) {
+                // Capitalize the first letter
+                String newSuitStr = capitalizeFirstLetter(newSuit);
+                out.println(newSuitStr + NEW_SUIT_DECLARED);
+            }
         }
     }
 

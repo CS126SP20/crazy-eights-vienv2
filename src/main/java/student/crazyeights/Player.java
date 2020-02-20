@@ -63,7 +63,6 @@ public class Player {
     }
 
     public void pingAiDrawCard(Card drawedCard) {
-        hand.addCard(drawedCard);
         ai.receiveCard(drawedCard);
     }
 
